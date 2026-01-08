@@ -40,20 +40,55 @@ export default function Wisdom() {
     const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [fadeDirection, setFadeDirection] = useState('in');
+    const [aosInitialized, setAosInitialized] = useState(false);
 
     const animationTimeout = useRef(null);
 
     useEffect(() => {
-        AOS.init({
-            duration: 800,
-            once: true,
-            offset: 100
-        });
+        // Инициализация AOS с настройками для мобильных
+        const initAOS = () => {
+            AOS.init({
+                duration: 800,
+                once: true,
+                offset: 50, // Уменьшен offset для мобильных
+                delay: 100,
+                easing: 'ease-in-out',
+                mirror: false,
+                anchorPlacement: 'top-center',
+                disable: false, // Важно: не отключать на мобильных
+                startEvent: 'DOMContentLoaded',
+                initClassName: 'aos-init',
+                animatedClassName: 'aos-animate',
+                useClassNames: false,
+                disableMutationObserver: false,
+            });
+            setAosInitialized(true);
+        };
+
+        // Задержка для гарантии загрузки DOM
+        if (document.readyState === 'complete') {
+            initAOS();
+        } else {
+            window.addEventListener('load', initAOS);
+        }
 
         setShuffledQuotes(shuffleArray(wisdomData));
 
-        return () => clearTimeout(animationTimeout.current);
+        return () => {
+            clearTimeout(animationTimeout.current);
+            window.removeEventListener('load', initAOS);
+        };
     }, []);
+
+    // Обновление AOS при изменении языка или контента
+    useEffect(() => {
+        if (aosInitialized) {
+            // Небольшая задержка для пересчета позиций
+            setTimeout(() => {
+                AOS.refresh();
+            }, 100);
+        }
+    }, [currentLanguage, aosInitialized]);
 
     const getCurrentQuote = () => {
         if (!shuffledQuotes.length) return null;
@@ -82,6 +117,10 @@ export default function Wisdom() {
             requestAnimationFrame(() => {
                 setFadeDirection('in');
                 setIsAnimating(false);
+                // Обновляем AOS после смены цитаты
+                if (aosInitialized) {
+                    AOS.refresh();
+                }
             });
         }, 300);
     };
@@ -92,17 +131,24 @@ export default function Wisdom() {
     return (
         <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 py-12">
             {/* Фон */}
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/4 -left-16 w-32 h-32 md:w-64 md:h-64 rounded-full opacity-5 bg-gray-800 dark:bg-gray-200 transition-colors duration-500"></div>
                 <div className="absolute bottom-1/4 -right-16 w-40 h-40 md:w-80 md:h-80 rounded-full opacity-5 bg-gray-800 dark:bg-gray-200 transition-colors duration-500"></div>
                 <div className="absolute top-20 left-1/4 w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600 opacity-30"></div>
                 <div className="absolute bottom-20 right-1/4 w-3 h-3 rounded-full bg-gray-400 dark:bg-gray-600 opacity-30"></div>
             </div>
 
-            <div className="relative z-10 container mx-auto max-w-4xl">
-                <div className="mb-12 md:mb-16" data-aos="fade-up">
+            <div className="relative z-10 container mx-auto max-w-4xl w-full">
+                <div
+                    className="mb-12 md:mb-16"
+                    data-aos="fade-up"
+                    data-aos-duration="800"
+                    data-aos-delay="100"
+                    data-aos-once="true"
+                    data-aos-anchor-placement="top-center"
+                >
                     <div className="relative">
-                        {/* КАРТОЧКА (ключ — фикс бага) */}
+                        {/* КАРТОЧКА */}
                         <div
                             key={currentQuoteIndex}
                             className={`bg-card-light dark:bg-card-dark rounded-3xl p-4 md:p-6 lg:p-10 border border-gray-100 dark:border-gray-800 shadow-xl transition-all duration-500 ${fadeDirection === 'in'
@@ -110,8 +156,8 @@ export default function Wisdom() {
                                 : 'opacity-0 scale-95 translate-y-4'
                                 }`}
                         >
-                            <div className="absolute top-4 md:top-6 left-4 md:left-6 text-3xl md:text-4xl text-gray-200 dark:text-gray-800">"</div>
-                            <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 text-3xl md:text-4xl text-gray-200 dark:text-gray-800 rotate-180">"</div>
+                            <div className="absolute top-4 md:top-6 left-4 md:left-6 text-3xl md:text-4xl text-gray-200 dark:text-gray-800 select-none">"</div>
+                            <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 text-3xl md:text-4xl text-gray-200 dark:text-gray-800 rotate-180 select-none">"</div>
 
                             <div className="text-center py-4 md:py-6">
                                 <p className="text-xl md:text-2xl lg:text-3xl leading-relaxed text-text-light dark:text-text-dark italic mb-3 md:mb-6 px-4">
@@ -131,21 +177,27 @@ export default function Wisdom() {
                             <button
                                 onClick={() => changeQuote('prev')}
                                 disabled={isAnimating}
-                                className="p-3 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 disabled:opacity-50 shadow-sm"
+                                aria-label="Previous quote"
+                                className="p-3 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 transition-all duration-300 disabled:opacity-50 shadow-sm"
                             >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /> </svg>  
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
                             </button>
 
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 min-w-[60px] text-center">
                                 {currentQuoteIndex + 1} / {shuffledQuotes.length}
                             </div>
 
                             <button
                                 onClick={() => changeQuote('next')}
                                 disabled={isAnimating}
-                                className="p-3 rounded-full bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-900 dark:hover:bg-gray-600 transition-all duration-300 disabled:opacity-50 shadow-sm"
+                                aria-label="Next quote"
+                                className="p-3 rounded-full bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-900 dark:hover:bg-gray-600 active:scale-95 transition-all duration-300 disabled:opacity-50 shadow-sm"
                             >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /> </svg>
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
                             </button>
                         </div>
                     </div>

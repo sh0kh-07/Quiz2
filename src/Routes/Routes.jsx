@@ -1,10 +1,10 @@
-import Dashboard from "../Components/Dashboard/Dashboard";
+import Home from "../Components/Home";
 
 export const Rout = [
     {
         name: 'Home',
         path: '/',
-        component: <Dashboard />
+        component: <Home />
     },
 
 ]

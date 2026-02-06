@@ -119,9 +119,10 @@ export default function Test() {
             };
 
             const response = await UserAnswer.Create(data);
-            console.log("Javoblar muvaffaqiyatli yuborildi:", response);
+            Alert('Yaxshi', "success")
             return response;
         } catch (error) {
+            Alert('Error', "error")
             console.error("Javoblarni yuborishda xatolik:", error);
         }
     };

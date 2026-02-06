@@ -1,3 +1,4 @@
+import api from "../axios";
 import { $api } from "../Headers";
 
 class QuestionApi {
@@ -10,7 +11,7 @@ class QuestionApi {
         return response;
     }
     static GetAll = async (id) => {
-        const response = await $api.get(`/questions/all?quizId=${id}`)
+        const response = await api.get(`/questions/all?quizId=${id}`)
         return response;
     }
     static Edit = async (id, data) => {

@@ -3,7 +3,8 @@ import { QuizApi } from "../../utils/Controllers/QuizApi";
 import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
 import { ChevronLeft, ChevronRight, FileText, Clock, Calendar, Search } from "lucide-react";
 import Loading from "../UI/Loadings/Loading";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // Компонент для пустого состояния
 function EmptyState() {
@@ -23,6 +24,7 @@ function EmptyState() {
 }
 
 export default function Home() {
+    const navigate = useNavigate();
     const [chatId, setChatId] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
     const [page, setPage] = useState(1);
@@ -70,6 +72,22 @@ export default function Home() {
         if (page < totalPages) setPage(prev => prev + 1);
     };
 
+    const handleQuizClick = (quiz) => {
+        Swal.fire({
+            title: "Testni boshlaysizmi?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Ha",
+            cancelButtonText: "Yo'q",
+            confirmButtonColor: "#10b981",
+            cancelButtonColor: "#6b7280",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate(`/test/${quiz?.id}`);
+            }
+        });
+    };
+
     if (loading) return <Loading />;
 
     if (quizzes.length === 0) return <EmptyState />;
@@ -82,27 +100,29 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {quizzes.map(quiz => (
-                    <NavLink to={`/test/${quiz?.id}`}>
-                        <Card key={quiz.id} className="shadow-md hover:shadow-xl transition duration-200">
-                            <CardBody className="flex flex-col gap-3">
-                                <Typography variant="h6" className="font-bold text-gray-800">
-                                    {quiz.name}
-                                </Typography>
-                                <div className="flex items-center gap-2 text-gray-600 text-sm">
-                                    <FileText className="w-4 h-4" />
-                                    Savollar: <span className="font-medium">{quiz.count}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-gray-600 text-sm">
-                                    <Clock className="w-4 h-4" />
-                                    Vaqt: <span className="font-medium">{quiz.time} daqiqa</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-gray-500 text-xs">
-                                    <Calendar className="w-4 h-4" />
-                                    Yaratilgan: {new Date(quiz.createdAt).toLocaleDateString()}
-                                </div>
-                            </CardBody>
-                        </Card>
-                    </NavLink>
+                    <Card
+                        key={quiz.id}
+                        className="shadow-md hover:shadow-xl transition duration-200 cursor-pointer"
+                        onClick={() => handleQuizClick(quiz)}
+                    >
+                        <CardBody className="flex flex-col gap-3">
+                            <Typography variant="h6" className="font-bold text-gray-800">
+                                {quiz.name}
+                            </Typography>
+                            <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                <FileText className="w-4 h-4" />
+                                Savollar: <span className="font-medium">{quiz.count}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                <Clock className="w-4 h-4" />
+                                Vaqt: <span className="font-medium">{quiz.time} daqiqa</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 text-xs">
+                                <Calendar className="w-4 h-4" />
+                                Yaratilgan: {new Date(quiz.createdAt).toLocaleDateString()}
+                            </div>
+                        </CardBody>
+                    </Card>
                 ))}
             </div>
 

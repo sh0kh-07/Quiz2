@@ -6,6 +6,7 @@ import { Card, CardBody, Typography, Button, Progress } from "@material-tailwind
 import { Clock, CheckCircle, XCircle, AlertCircle, Home } from "lucide-react";
 import Swal from "sweetalert2";
 import Loading from "../UI/Loadings/Loading";
+import { Alert } from "../../utils/Alert";
 
 export default function Test() {
     const { id } = useParams();
@@ -117,7 +118,6 @@ export default function Test() {
                 endTime: endTimeMinutes,
                 answers: answers
             };
-
             const response = await UserAnswer.Create(data);
             Alert('Yaxshi', "success")
             return response;
@@ -126,7 +126,6 @@ export default function Test() {
             console.error("Javoblarni yuborishda xatolik:", error);
         }
     };
-
     const handleSubmit = async (autoSubmit = false) => {
         const answeredCount = Object.keys(selectedAnswers).length;
 
@@ -355,12 +354,12 @@ export default function Test() {
                                     key={option.id}
                                     onClick={() => handleAnswerSelect(currentQ.id, option.id)}
                                     className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${!showResult
-                                            ? "cursor-pointer border-gray-200 hover:border-gray-300 active:border-gray-400 bg-white"
-                                            : isCorrect
-                                                ? "border-green-500 bg-green-50"
-                                                : isSelected
-                                                    ? "border-red-500 bg-red-50"
-                                                    : "border-gray-200 bg-gray-50"
+                                        ? "cursor-pointer border-gray-200 hover:border-gray-300 active:border-gray-400 bg-white"
+                                        : isCorrect
+                                            ? "border-green-500 bg-green-50"
+                                            : isSelected
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-200 bg-gray-50"
                                         } ${!showResult && isSelected ? "border-blue-500 bg-blue-50" : ""}`}
                                 >
                                     <div className="flex items-start gap-2 sm:gap-3">
@@ -384,8 +383,8 @@ export default function Test() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <Typography className={`text-sm sm:text-base ${showResult && isCorrect ? "font-semibold text-green-800" :
-                                                    showResult && isSelected ? "font-semibold text-red-800" :
-                                                        "text-gray-800"
+                                                showResult && isSelected ? "font-semibold text-red-800" :
+                                                    "text-gray-800"
                                                 }`}>
                                                 <span className="font-semibold mr-1 sm:mr-2">
                                                     {String.fromCharCode(65 + index)}.

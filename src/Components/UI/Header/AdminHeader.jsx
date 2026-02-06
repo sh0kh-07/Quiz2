@@ -106,7 +106,7 @@ export default function AdminHeader({ active, sidebarOpen, showBackButton = fals
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-blue-400/70"></div>
 
-                            <button
+                            {/* <button
                                 onClick={() => navigate("/profile")}
                                 className="
                                     w-full px-4 py-3 text-left text-sm
@@ -116,7 +116,7 @@ export default function AdminHeader({ active, sidebarOpen, showBackButton = fals
                             >
                                 <User className="w-4 h-4" />
                                 <span>Profil</span>
-                            </button>
+                            </button> */}
 
                             <div className="h-px my-1 bg-white/40"></div>
 

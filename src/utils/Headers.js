@@ -1,29 +1,119 @@
 import axios from "axios";
 
-export const BASE_URL = "http://84.247.167.241:7171";
+export const BASE_URL = "https://dev.ithubs.uz/quiz"
 
 export const $api = axios.create({
-    baseURL: `${BASE_URL}/api/v1/`,
+    baseURL: `${BASE_URL}/api/v1`,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-$api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+/* ===============================
+   GLOBAL REFRESH STATE
+================================ */
+let isRefreshing = false;
+let failedQueue = [];
 
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
+/* ===============================
+   REQUEST INTERCEPTOR
+================================ */
+$api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("access_token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+/* ===============================
+   RESPONSE INTERCEPTOR
+================================ */
 $api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error?.response?.status === 401) {
-            localStorage.clear();
-            window.location.replace("/login");
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+
+            // если refresh уже идёт — ждём
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({
+                        resolve: (token) => {
+                            originalRequest.headers.Authorization = "Bearer " + token;
+                            resolve($api(originalRequest));
+                        },
+                        reject,
+                    });
+                });
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+                const refreshToken = localStorage.getItem("refresh_token");
+                const userId = localStorage.getItem("user_id");
+
+                if (!refreshToken || !userId) {
+                    throw new Error("Refresh token yoki user ID yo‘q");
+                }
+
+                const { data } = await axios.post(
+                    `${BASE_URL}/api/auth/refresh`,
+                    {
+                        refreshToken,
+                        userId,
+                    }
+                );
+
+                const newAccessToken = data.access_token;
+                const newRefreshToken = data.refresh_token;
+
+                // ✅ сохраняем в localStorage
+                localStorage.setItem("access_token", newAccessToken);
+                localStorage.setItem("refresh_token", newRefreshToken);
+
+                $api.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
+
+                // продолжаем очередь
+                processQueue(null, newAccessToken);
+
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                return $api(originalRequest);
+
+            } catch (err) {
+                // 🔴 refresh не удался → logout
+                processQueue(err, null);
+
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
+                localStorage.removeItem("user_id");
+                localStorage.removeItem("role");
+
+                window.location.href = "/login";
+                return Promise.reject(err);
+
+            } finally {
+                isRefreshing = false;
+            }
         }
+
         return Promise.reject(error);
     }
 );

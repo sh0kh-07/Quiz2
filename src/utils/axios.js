@@ -1,4 +1,7 @@
-import axios from 'axios' 
-axios.defaults.baseURL = 'http://84.247.167.241:7171/api/v1/'
+import axios from "axios";
 
-export default axios
+const api = axios.create({
+    baseURL: "https://dev.ithubs.uz/quiz/api/v1/",
+});
+
+export default api;

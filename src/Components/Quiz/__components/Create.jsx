@@ -11,19 +11,20 @@ import {
 import { QuizApi } from "../../../utils/Controllers/QuizApi";
 import { Alert } from "../../../utils/Alert";
 
-export default function Create({refresh}) {
+export default function Create({ refresh }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const [name, setName] = useState("");
     const [count, setCount] = useState("");
     const [time, setTime] = useState("");
+    const [type, setType] = useState("maktab"); // по умолчанию "maktab"
 
     const handleOpen = () => setOpen(!open);
 
     const handleCreateQuiz = async () => {
-        if (!name || !count || !time) {
-            Alert("Barcha maydonlarni to‘ldiring", "warning");
+        if (!name || !count || !time || !type) {
+            Alert("Barcha maydonlarni to'ldiring", "warning");
             return;
         }
 
@@ -34,6 +35,7 @@ export default function Create({refresh}) {
                 name,
                 count: Number(count),
                 time: Number(time),
+                type, // отправляем тип на backend
             });
 
             Alert("Quiz muvaffaqiyatli yaratildi!", "success");
@@ -42,7 +44,8 @@ export default function Create({refresh}) {
             setName("");
             setCount("");
             setTime("");
-            refresh()
+            setType("maktab");
+            refresh();
             setOpen(false);
 
         } catch (error) {
@@ -97,6 +100,32 @@ export default function Create({refresh}) {
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
                     />
+
+                    {/* Выбор типа */}
+                    <div>
+                        <Typography variant="small" className="mb-2 font-medium text-gray-700">
+                            Turi
+                        </Typography>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={() => setType("Maktab")}
+                                variant={type === "Maktab" ? "filled" : "outlined"}
+                                color={type === "Maktab" ? "blue" : "gray"}
+                                className="flex-1"
+                            >
+                                Maktab
+                            </Button>
+
+                            <Button
+                                onClick={() => setType("МТМ")}
+                                variant={type === "МТМ" ? "filled" : "outlined"}
+                                color={type === "МТМ" ? "blue" : "gray"}
+                                className="flex-1"
+                            >
+                                МТМ
+                            </Button>
+                        </div>
+                    </div>
                 </DialogBody>
 
                 <DialogFooter className="flex gap-2">

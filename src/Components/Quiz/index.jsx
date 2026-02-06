@@ -8,6 +8,7 @@ import Create from "./__components/Create";
 import Delete from "./__components/Delete";
 import Edit from "./__components/Edit";
 import { NavLink } from "react-router-dom";
+import Send from "./__components/Send";
 
 export default function QuizList() {
     const [quizzes, setQuizzes] = useState([]);
@@ -80,20 +81,24 @@ export default function QuizList() {
                                 </div>
 
                                 <Typography className="text-gray-500 text-xs mt-2">
+                                    Turi: {quiz?.type}
+                                </Typography>
+                                <Typography className="text-gray-500 text-xs mt-">
                                     Yaratilgan: {new Date(quiz.createdAt).toLocaleDateString("uz-UZ")}
                                 </Typography>
 
-                                <div className="flex items-center gap-[10px]">
+                                <div className="grid grid-cols-2 gap-[10px]">
                                     <NavLink to={`/quiz/${quiz?.id}`}>
                                         <Button
                                             size="sm"
-                                            className=" bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
+                                            className=" bg-blue-500 w-full  hover:bg-blue-600 text-white flex items-center justify-center gap-1"
                                         >
                                             <Eye className="w-4 h-4" />  Ko‘rish
                                         </Button>
                                     </NavLink>
                                     <Delete refresh={fetchQuizzes} id={quiz?.id} />
                                     <Edit refresh={fetchQuizzes} data={quiz} />
+                                    <Send quizId={quiz?.id}/>
                                 </div>
 
 

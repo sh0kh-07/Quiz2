@@ -31,7 +31,7 @@ export default function Delete({ id, refresh }) {
             <Button
                 onClick={handleOpen}
                 size="sm"
-                className="bg-red-500 hover:bg-red-600 text-white flex items-center gap-1"
+                className="bg-red-500 hover:bg-red-600 justify-center text-white flex items-center gap-1"
             >
                 <Trash2 className="w-4 h-4" />
                 O‘chirish

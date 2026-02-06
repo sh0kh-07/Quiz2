@@ -16,7 +16,8 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     // 👉 только цифры
     const handlePhoneChange = (e) => {
         let value = e.target.value;
@@ -41,8 +42,6 @@ export default function Login() {
         setPhone(value);
     };
 
-
-
     const handleLogin = async () => {
         if (!phone || !password) {
             Alert("Telefon va parolni kiriting", "warning");
@@ -52,8 +51,11 @@ export default function Login() {
         try {
             setLoading(true);
 
+            // Убираем "+" перед отправкой на backend
+            const cleanPhone = phone.replace(/\+/g, "");
+
             const response = await Auth.Login({
-                phone,
+                phone: cleanPhone,
                 password,
             });
 
@@ -109,9 +111,11 @@ export default function Login() {
                         <Input
                             type={showPassword ? "text" : "password"}
                             label="Parol"
-                            // icon={<Lock size={18} />}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === "Enter") handleLogin();
+                            }}
                         />
 
                         {/* 👁 правильная позиция */}

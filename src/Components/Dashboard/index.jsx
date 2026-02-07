@@ -3,6 +3,7 @@ import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { FileQuestion, Users, CheckCircle, Target } from "lucide-react";
 import EmptyData from "../UI/NoData/EmptyData";
 import Loading from "../UI/Loadings/Loading";
+import { Statistik } from "../../utils/Controllers/Statistik";
 // import { DashboardApi } from "../../utils/Controllers/DashboardApi"; // импортируйте ваш API
 
 export default function Dashboard() {
@@ -14,10 +15,10 @@ export default function Dashboard() {
         totalAttempts: 0
     });
 
-    const getStats = async () => {
+    const getStats = async (year = 2026) => {
         try {
             setLoading(true);
-            // const response = await DashboardApi.GetStats();
+            const response = await Statistik.Get(year);
             // setStats(response?.data || {});
 
             // Временные данные для примера

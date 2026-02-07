@@ -30,9 +30,11 @@ class QuizApi {
         return response;
     }
     static Download = async (id) => {
-        const response = await $api.get(`/quizzes/excel/${id}`)
+        const response = await $api.get(`/quizzes/excel/${id}`, {
+            responseType: "blob",
+        });
         return response;
-    }
+    };
 }
 
 export { QuizApi };

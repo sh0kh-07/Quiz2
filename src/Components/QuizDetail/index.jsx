@@ -10,6 +10,7 @@ import {
     Typography,
     Chip,
 } from "@material-tailwind/react";
+import { Image as ImageIcon } from "lucide-react";
 import Info from "./__compoenents/Info";
 import Edit from "../Question/Edit";
 import OptionEdit from "./__compoenents/OptionEdit";
@@ -25,6 +26,8 @@ export default function QuizDetail() {
     const [pagination, setPagination] = useState({});
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
+
+    const IMAGE_BASE_URL = "https://dev.ithubs.uz/quiz/"; 
 
     const getQuiz = async () => {
         try {
@@ -63,22 +66,47 @@ export default function QuizDetail() {
                 <Typography variant="h4">Savollar</Typography>
                 <NavLink to={`/question/create/${id}`}>
                     <Button className="bg-blue-500 hover:bg-blue-600">
-                         +
+                        +
                     </Button>
                 </NavLink>
             </div>
 
             {/* QUESTIONS */}
             <div className="space-y-4">
-
                 {questions?.length > 0 ? (
                     questions.map((q, index) => (
                         <Card key={q.id} className="border">
                             <CardBody className="space-y-3">
                                 <div className="flex items-start justify-between gap-3">
-                                    <Typography className="font-semibold">
-                                        {index + 1}. {q.question}
-                                    </Typography>
+                                    <div className="flex-1">
+                                        <Typography className="font-semibold mb-2">
+                                            {index + 1}. {q.question}
+                                        </Typography>
+
+                                        {/* Изображение вопроса (если есть) */}
+                                        {q.image && (
+                                            <div className="mt-3 mb-3">
+                                                <div className="relative inline-block">
+                                                    <img
+                                                        src={`${IMAGE_BASE_URL}${q.image}`}
+                                                        alt={`Question ${index + 1}`}
+                                                        className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm max-h-64 object-contain"
+                                                        onError={(e) => {
+                                                            // Fallback если изображение не загрузилось
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextSibling.style.display = 'flex';
+                                                        }}
+                                                    />
+                                                    {/* Fallback UI если изображение не загрузилось */}
+                                                    <div className="hidden items-center gap-2 p-3 bg-gray-100 rounded-lg text-gray-500 text-sm">
+                                                        <ImageIcon className="w-4 h-4" />
+                                                        <span>Rasmni yuklab bo'lmadi</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className="flex items-center gap-[10px]">
                                         <Edit data={q} refresh={getQuestions} />
                                         <Delete id={q?.id} refresh={getQuestions} />
@@ -87,36 +115,35 @@ export default function QuizDetail() {
 
                                 {/* OPTIONS */}
                                 <div className="flex items-start gap-[10px] flex-col w-full">
-                                    {q.options.map((opt, index) => (
+                                    {q.options.map((opt, optIndex) => (
                                         <div
                                             key={opt.id}
                                             className={`p-3 rounded-lg border w-full ${opt.isCorrect
-                                                ? "border-green-500 bg-green-50"
-                                                : "border-gray-200"
+                                                    ? "border-green-500 bg-green-50"
+                                                    : "border-gray-200"
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between">
-                                                <p>
-                                                    {index + 1} Variant
+                                                <p className="font-medium text-sm text-gray-700">
+                                                    {optIndex + 1}. Variant
                                                 </p>
                                                 <div className="flex items-center gap-[10px]">
                                                     <OptionEdit refresh={getQuestions} data={opt} />
                                                     <OptionDelete refresh={getQuestions} id={opt?.id} />
                                                 </div>
                                             </div>
-                                            <div className="flex items-center justify-between">
-                                                <Typography>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <Typography className="text-gray-800">
                                                     {opt.text}
                                                 </Typography>
-
                                             </div>
 
                                             {opt.isCorrect && opt.note && (
                                                 <Typography
                                                     variant="small"
-                                                    className="mt-2 text-gray-600"
+                                                    className="mt-2 text-gray-600 italic bg-green-100/50 p-2 rounded"
                                                 >
-                                                    {opt.note}
+                                                    💡 {opt.note}
                                                 </Typography>
                                             )}
                                         </div>
@@ -128,8 +155,6 @@ export default function QuizDetail() {
                 ) : (
                     <EmptyData text={'Savollar mavjud emas'} />
                 )}
-
-
             </div>
 
             {/* PAGINATION */}

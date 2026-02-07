@@ -3,7 +3,7 @@ import { QuestionApi } from "../../utils/Controllers/QuestionApi";
 import { UserAnswer } from "../../utils/Controllers/UserAnswer";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardBody, Typography, Button, Progress, Input } from "@material-tailwind/react";
-import { Clock, CheckCircle, XCircle, AlertCircle, User, FileX } from "lucide-react";
+import { Clock, CheckCircle, XCircle, AlertCircle, User, FileX, Image as ImageIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import Loading from "../UI/Loadings/Loading";
 import { Alert } from "../../utils/Alert";
@@ -12,6 +12,9 @@ import { UserApi } from "../../utils/Controllers/UserApi";
 export default function Test() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    // URL для изображений (замените на ваш актуальный URL)
+    const IMAGE_BASE_URL = "https://dev.ithubs.uz/quiz/";
 
     // ─── Ism bosqichi ───
     const [fullName, setFullName] = useState("");
@@ -402,9 +405,25 @@ export default function Test() {
                                                     <XCircle className="w-5 h-5 text-red-600" />
                                                 )}
                                             </div>
-                                            <Typography className="font-medium text-gray-800 text-sm sm:text-base flex-1">
-                                                {index + 1}. {question.question}
-                                            </Typography>
+                                            <div className="flex-1">
+                                                <Typography className="font-medium text-gray-800 text-sm sm:text-base">
+                                                    {index + 1}. {question.question}
+                                                </Typography>
+
+                                                {/* Изображение вопроса */}
+                                                {question.image && (
+                                                    <div className="mt-2">
+                                                        <img
+                                                            src={`${IMAGE_BASE_URL}${question.image}`}
+                                                            alt={`Question ${index + 1}`}
+                                                            className="max-w-full h-auto rounded-lg border border-gray-200 max-h-48 object-contain"
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="ml-7 space-y-2">
@@ -492,9 +511,29 @@ export default function Test() {
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4">
-                    <Typography variant="h6" className="mb-4 text-gray-800 font-medium text-base sm:text-lg">
+                    <Typography variant="h6" className="mb-3 text-gray-800 font-medium text-base sm:text-lg">
                         {currentQ?.question}
                     </Typography>
+
+                    {/* Изображение вопроса во время теста */}
+                    {currentQ?.image && (
+                        <div className="mb-4">
+                            <img
+                                src={`${IMAGE_BASE_URL}${currentQ.image}`}
+                                alt="Question"
+                                className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm max-h-64 object-contain mx-auto"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
+                            />
+                            {/* Fallback если изображение не загрузилось */}
+                            <div className="hidden items-center justify-center gap-2 p-4 bg-gray-100 rounded-lg text-gray-500 text-sm">
+                                <ImageIcon className="w-5 h-5" />
+                                <span>Rasmni yuklab bo'lmadi</span>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="space-y-2 sm:space-y-3">
                         {currentQ?.options.map((option, index) => {
@@ -507,12 +546,12 @@ export default function Test() {
                                     key={option.id}
                                     onClick={() => handleAnswerSelect(currentQ.id, option.id)}
                                     className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${!showResult
-                                            ? "cursor-pointer border-gray-200 hover:border-gray-300 active:border-gray-400 bg-white"
-                                            : isCorrect
-                                                ? "border-green-500 bg-green-50"
-                                                : isSelected
-                                                    ? "border-red-500 bg-red-50"
-                                                    : "border-gray-200 bg-gray-50"
+                                        ? "cursor-pointer border-gray-200 hover:border-gray-300 active:border-gray-400 bg-white"
+                                        : isCorrect
+                                            ? "border-green-500 bg-green-50"
+                                            : isSelected
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-200 bg-gray-50"
                                         } ${!showResult && isSelected ? "border-blue-500 bg-blue-50" : ""}`}
                                 >
                                     <div className="flex items-start gap-2 sm:gap-3">
@@ -537,10 +576,10 @@ export default function Test() {
                                         <div className="flex-1 min-w-0">
                                             <Typography
                                                 className={`text-sm sm:text-base ${showResult && isCorrect
-                                                        ? "font-semibold text-green-800"
-                                                        : showResult && isSelected
-                                                            ? "font-semibold text-red-800"
-                                                            : "text-gray-800"
+                                                    ? "font-semibold text-green-800"
+                                                    : showResult && isSelected
+                                                        ? "font-semibold text-red-800"
+                                                        : "text-gray-800"
                                                     }`}
                                             >
                                                 <span className="font-semibold mr-1 sm:mr-2">

@@ -16,17 +16,14 @@ export default function DownLoad({ quizId }) {
                     response.headers["content-type"] ||
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             });
-
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-
             // Fayl nomini response header dan olish yoki default
             const contentDisposition = response.headers["content-disposition"];
             const fileName = contentDisposition
                 ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
-                : `quiz-${quizId}.xlsx`;
-
+                : `quiz-${quizId}.xlsx`; 
             link.download = fileName;
             document.body.appendChild(link);
             link.click();

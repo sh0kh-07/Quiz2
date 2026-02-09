@@ -17,6 +17,7 @@ export default function Archive() {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [filterPeriod, setFilterPeriod] = useState("all");
+    const [filterType, setFilterType] = useState("all"); // Новое состояние для типа
 
     // Функция для форматирования даты в YYYY-MM-DD
     const formatDate = (date) => {
@@ -65,7 +66,7 @@ export default function Archive() {
         return { startDate, endDate };
     };
 
-    const fetchQuizzes = async (page = 1, period = filterPeriod) => {
+    const fetchQuizzes = async (page = 1, period = filterPeriod, type = filterType) => {
         try {
             setLoading(true);
 
@@ -74,8 +75,9 @@ export default function Archive() {
             // Формируем объект с параметрами
             const params = {
                 page,
-                ...(startDate && { startDate }), // Добавляем только если startDate существует
-                ...(endDate && { endDate }),     // Добавляем только если endDate существует
+                type: type === "all" ? null : type, // Добавляем тип, если не "all"
+                ...(startDate && { startDate }),
+                ...(endDate && { endDate }),
             };
 
             console.log("Sending params:", params); // Для отладки
@@ -106,7 +108,24 @@ export default function Archive() {
     const handleFilterChange = (value) => {
         setFilterPeriod(value);
         setCurrentPage(1);
-        fetchQuizzes(1, value);
+        fetchQuizzes(1, value, filterType);
+    };
+
+    const handleTypeChange = (value) => {
+        setFilterType(value);
+        setCurrentPage(1);
+        fetchQuizzes(1, filterPeriod, value);
+    };
+
+    const clearAllFilters = () => {
+        setFilterPeriod("all");
+        setFilterType("all");
+        setCurrentPage(1);
+        fetchQuizzes(1, "all", "all");
+    };
+
+    const hasActiveFilters = () => {
+        return filterPeriod !== "all" || filterType !== "all";
     };
 
     if (loading) {
@@ -137,24 +156,49 @@ export default function Archive() {
                         </Select>
                     </div>
 
+                    {/* Фильтр по типу */}
+                    <div className="flex-1 sm:flex-none sm:w-48">
+                        <Select
+                            label="Turi bo'yicha"
+                            value={filterType}
+                            onChange={(value) => handleTypeChange(value)}
+                            className="bg-white"
+                        >
+                            <Option value="all">Barcha turlar</Option>
+                            <Option value="Maktab">Maktab</Option>
+                            <Option value="МТМ">MTM</Option>
+                        </Select>
+                    </div>
+
                     {/* Кнопка создания */}
-                    <Create refresh={() => fetchQuizzes(currentPage, filterPeriod)} />
+                    <Create refresh={() => fetchQuizzes(currentPage, filterPeriod, filterType)} />
                 </div>
             </div>
 
-            {/* Информация о выбранном фильтре */}
-            {filterPeriod !== "all" && (
+            {/* Информация о выбранных фильтрах */}
+            {hasActiveFilters() && (
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
                     <Filter className="w-4 h-4 text-blue-600" />
                     <Typography className="text-sm text-blue-700">
                         Ko'rsatilmoqda:{" "}
-                        {filterPeriod === "week" && "Oxirgi hafta"}
-                        {filterPeriod === "month" && "Oxirgi oy"}
-                        {filterPeriod === "3months" && "Oxirgi 3 oy"}
-                        {filterPeriod === "year" && "Oxirgi yil"}
+                        {filterPeriod !== "all" && (
+                            <>
+                                {filterPeriod === "week" && "Oxirgi hafta"}
+                                {filterPeriod === "month" && "Oxirgi oy"}
+                                {filterPeriod === "3months" && "Oxirgi 3 oy"}
+                                {filterPeriod === "year" && "Oxirgi yil"}
+                            </>
+                        )}
+                        {filterPeriod !== "all" && filterType !== "all" && ", "}
+                        {filterType !== "all" && (
+                            <>
+                                {filterType === "Maktab" && "Maktab turi"}
+                                {filterType === "MTM" && "MTM turi"}
+                            </>
+                        )}
                     </Typography>
                     <button
-                        onClick={() => handleFilterChange("all")}
+                        onClick={clearAllFilters}
                         className="ml-auto text-xs text-blue-600 hover:text-blue-800 underline"
                     >
                         Tozalash
@@ -164,7 +208,7 @@ export default function Archive() {
 
             {/* Список карточек */}
             {quizzes.length === 0 ? (
-                <EmptyData text={filterPeriod !== "all" ? "Tanlangan davrda ma'lumot yo'q" : "Ma'lumot yo'q"} />
+                <EmptyData text={hasActiveFilters() ? "Tanlangan filtrlar bo'yicha ma'lumot yo'q" : "Ma'lumot yo'q"} />
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {quizzes.map((quiz) => (
@@ -190,7 +234,7 @@ export default function Archive() {
                                 </div>
 
                                 <Typography className="text-gray-500 text-xs mt-2">
-                                    Turi: {quiz?.type}
+                                    Turi: <span className="font-medium">{quiz?.type || "Aniqlanmagan"}</span>
                                 </Typography>
                                 <Typography className="text-gray-500 text-xs">
                                     Yaratilgan: {new Date(quiz.createdAt).toLocaleDateString("uz-UZ")}
@@ -205,8 +249,8 @@ export default function Archive() {
                                             <Eye className="w-4 h-4" /> Ko'rish
                                         </Button>
                                     </NavLink>
-                                    <Delete refresh={() => fetchQuizzes(currentPage, filterPeriod)} id={quiz?.id} />
-                                    <Edit refresh={() => fetchQuizzes(currentPage, filterPeriod)} data={quiz} />
+                                    <Delete refresh={() => fetchQuizzes(currentPage, filterPeriod, filterType)} id={quiz?.id} />
+                                    <Edit refresh={() => fetchQuizzes(currentPage, filterPeriod, filterType)} data={quiz} />
                                     <Send quizId={quiz?.id} />
                                     <DownLaod quizId={quiz?.id} />
                                 </div>

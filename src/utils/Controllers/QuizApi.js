@@ -12,6 +12,11 @@ class QuizApi {
     static GetStartDate_EndDate = async (data) => {
         let url = `/quizzes/page?page=${data?.page || 1}`;
 
+        // Добавляем type только если он не null/undefined
+        if (data?.type) {
+            url += `&type=${data.type}`;
+        }
+
         // Добавляем startDate только если он не null/undefined
         if (data?.startDate) {
             url += `&startDate=${data.startDate}`;

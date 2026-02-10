@@ -139,7 +139,7 @@ export default function Archive() {
                     Quizlar
                 </Typography>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex items-center flex-wrap gap-3 w-full sm:w-auto">
                     {/* Фильтр по периоду */}
                     <div className="flex-1 sm:flex-none sm:w-48">
                         <Select

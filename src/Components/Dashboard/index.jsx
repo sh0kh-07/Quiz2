@@ -165,7 +165,7 @@ export default function Dashboard() {
                     </CardBody>
                 </Card>
 
-                {data?.quizDataByType?.slice(0, isMobile ? 1 : 3).map((item, index) => (
+                {data?.quizDataByType?.slice(0, isMobile ? 2 : 3).map((item, index) => (
                     <Card key={index} className="shadow-sm">
                         <CardBody className="flex items-center justify-between p-4 md:p-6">
                             <div>
@@ -181,18 +181,6 @@ export default function Dashboard() {
                     </Card>
                 ))}
             </div>
-
-            {/* Кнопка для показа всех типов на мобильных */}
-            {isMobile && data?.quizDataByType?.length > 1 && (
-                <div className="flex flex-wrap gap-2">
-                    {data.quizDataByType.slice(1).map((item, index) => (
-                        <div key={index} className="bg-gray-100 px-3 py-2 rounded-lg">
-                            <Typography className="text-xs text-gray-600">{item.type}</Typography>
-                            <Typography className="font-bold text-sm">{item.count}</Typography>
-                        </div>
-                    ))}
-                </div>
-            )}
 
             {/* Bar chart - адаптивный */}
             <Card className="shadow-sm">

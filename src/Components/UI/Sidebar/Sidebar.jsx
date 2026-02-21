@@ -1,4 +1,4 @@
-import { Home, FileQuestion, Archive } from "lucide-react";
+import { Home, FileQuestion, BadgeDollarSign, Rss } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
@@ -9,14 +9,19 @@ export default function Sidebar() {
             label: "Bosh sahifa"
         },
         {
-            path: "/quiz",
+            path: "/topic-modules",
             icon: FileQuestion,
             label: "Quiz"
         },
         {
-            path: "/archive",
-            icon: Archive,
+            path: "/payment",
+            icon: BadgeDollarSign,
             label: "Arxiv"
+        },
+        {
+            path: "/reklama",
+            icon: Rss,
+            label: "Reklama"
         }
     ];
 
@@ -28,16 +33,16 @@ export default function Sidebar() {
             border border-white/30 shadow-2xl
             transition-all duration-300
         ">
-            <div className="flex justify-center items-center gap-8">
+            <div className="flex justify-center items-center gap-5">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
                         className={({ isActive }) => `
                             flex flex-col items-center justify-center
-                            px-4 py-2 rounded-xl
+                            px-2 py-2 rounded-xl
                             transition-all duration-300
-                            min-w-[70px]
+                            min-w-[60px]
                             ${isActive
                                 ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg "
                                 : "text-gray-600 hover:bg-gray-100 hover:text-blue-500"
@@ -45,7 +50,7 @@ export default function Sidebar() {
                         `}
                     >
                         <item.icon className="w-6 h-6 mb-1" />
-                  
+
                     </NavLink>
                 ))}
             </div>

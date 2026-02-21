@@ -2,81 +2,49 @@ import { useEffect, useState } from "react";
 import { QuestionApi } from "../../utils/Controllers/QuestionApi";
 import { UserAnswer } from "../../utils/Controllers/UserAnswer";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardBody, Typography, Button, Progress, Input } from "@material-tailwind/react";
-import { Clock, CheckCircle, XCircle, AlertCircle, User, FileX, Image as ImageIcon } from "lucide-react";
+import { Card, CardBody, Typography, Button, Progress } from "@material-tailwind/react";
+import { CheckCircle, XCircle, AlertCircle, Image as ImageIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import Loading from "../UI/Loadings/Loading";
 import { Alert } from "../../utils/Alert";
-import { UserApi } from "../../utils/Controllers/UserApi";
+import CONFIG from "../../utils/Config";
 
 export default function Test() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // URL для изображений (замените на ваш актуальный URL)
-    const IMAGE_BASE_URL = "https://dev.menejment2.uz/";
-
-    // ─── Ism bosqichi ───
-    const [fullName, setFullName] = useState("");
-    const [userId, setUserId] = useState(null);
-    const [nameSubmitting, setNameSubmitting] = useState(false);
-    const [testStarted, setTestStarted] = useState(false);
+    // URL для изображений
 
     // ─── Test bosqichi ───
     const [questions, setQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState({});
-    const [timeLeft, setTimeLeft] = useState(0);
     const [testFinished, setTestFinished] = useState(false);
     const [loading, setLoading] = useState(false);
     const [quizInfo, setQuizInfo] = useState(null);
     const [answeredQuestions, setAnsweredQuestions] = useState(new Set());
     const [startTime, setStartTime] = useState(null);
     const [userQuizId, setUserQuizId] = useState(null);
+    const [testStarted, setTestStarted] = useState(false);
 
-    // ─── Foydalanuvchi yaratish ───
-    const CreateUser = async () => {
-        if (!fullName.trim()) {
-            Alert("Iltimos, to'liq ismingizni kiriting", "warning");
-            return;
-        }
 
-        try {
-            setNameSubmitting(true);
-            const response = await UserApi.Create({ full_name: fullName.trim() });
-            const data = response?.data || response;
-            const newUserId = data?.user?.id;
+    const userId = localStorage.getItem('telegramChatId')
 
-            if (newUserId) {
-                setUserId(newUserId);
-                localStorage.setItem("userId", newUserId);
-                localStorage.setItem("userName", fullName.trim());
-                setTestStarted(true);
-                GetAllQuiz();
-            } else {
-                Alert("Foydalanuvchi yaratishda xatolik", "error");
-            }
-        } catch (error) {
-            console.log(error);
-            Alert("Xatolik yuz berdi", "error");
-        } finally {
-            setNameSubmitting(false);
-        }
-    };
+
 
     // ─── Savollarni olish ───
     const GetAllQuiz = async () => {
         try {
             setLoading(true);
-            const response = await QuestionApi.GetAll(id);
+            const response = await QuestionApi.GetForUser(id);
             const data = response?.data || [];
             setQuestions(data);
 
             if (data.length > 0) {
                 setQuizInfo(data[0].quiz);
-                setTimeLeft(data[0].quiz.time * 60);
                 setStartTime(Date.now());
                 setUserQuizId(id);
+                setTestStarted(true);
             }
         } catch (error) {
             console.log(error);
@@ -93,29 +61,9 @@ export default function Test() {
         }
     };
 
-    // ─── Timer ───
     useEffect(() => {
-        if (!testStarted || loading || timeLeft <= 0 || testFinished) return;
-
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    handleSubmit(true);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [testStarted, loading, timeLeft, testFinished]);
-
-    const formatTime = (seconds) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    };
+        GetAllQuiz();
+    }, [id]);
 
     const handleAnswerSelect = (questionId, optionId) => {
         if (answeredQuestions.has(questionId)) return;
@@ -142,26 +90,26 @@ export default function Test() {
 
     const PostAnswer = async () => {
         try {
-            const endTimeMinutes = Math.round((Date.now() - startTime) / 1000 / 60);
-
             const answers = Object.entries(selectedAnswers).map(([questionId, optionId]) => ({
-                userQuizId: userQuizId,
+                userTopicId: userQuizId,
                 questionId: questionId,
                 optionId: optionId,
                 note: "",
             }));
 
             const data = {
-                userId: userId,
-                quizId: id,
-                endTime: endTimeMinutes,
+                chatId: userId,
+                topicId: id,
+                endTime: 1,
+                pdfView: true,
                 answers: answers,
             };
+
             const response = await UserAnswer.Create(data);
-            Alert("Yaxshi", "success");
+            Alert("Test muvaffaqiyatli yakunlandi", "success");
             return response;
         } catch (error) {
-            Alert("Error", "error");
+            Alert("Javoblarni yuborishda xatolik", "error");
             console.error("Javoblarni yuborishda xatolik:", error);
         }
     };
@@ -211,80 +159,6 @@ export default function Test() {
     };
 
     // ══════════════════════════════════════
-    // ISM KIRITISH SAHIFASI
-    // ══════════════════════════════════════
-    if (!testStarted) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-2">
-                <div className="w-full max-w-md">
-                    <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-                        <div className="flex justify-center mb-6">
-                            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
-                                <User className="w-8 h-8 text-blue-600" />
-                            </div>
-                        </div>
-
-                        <Typography variant="h4" className="font-bold text-gray-800 text-center mb-2">
-                            Testga xush kelibsiz!
-                        </Typography>
-                        <Typography className="text-gray-500 text-center text-sm mb-8">
-                            Testni boshlash uchun to'liq ismingizni kiriting
-                        </Typography>
-
-                        <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                To'liq ism
-                            </label>
-                            <Input
-                                size="lg"
-                                placeholder="Masalan: Aliyev Ali"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") CreateUser();
-                                }}
-                                className="!border-gray-300 focus:!border-blue-500"
-                                labelProps={{ className: "hidden" }}
-                                containerProps={{ className: "min-w-0" }}
-                            />
-                        </div>
-
-                        <Button
-                            fullWidth
-                            size="lg"
-                            color="blue"
-                            onClick={CreateUser}
-                            disabled={!fullName.trim() || nameSubmitting}
-                            className="flex items-center justify-center gap-2 py-3 text-base normal-case"
-                        >
-                            {nameSubmitting ? (
-                                <>
-                                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                    </svg>
-                                    Yuklanmoqda...
-                                </>
-                            ) : (
-                                "Testni boshlash"
-                            )}
-                        </Button>
-
-                        <div className="mt-6 p-3 bg-blue-50 rounded-lg">
-                            <div className="flex items-start gap-2">
-                                <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                                <Typography className="text-xs text-blue-700">
-                                    Ismingizni kiritganingizdan so'ng test avtomatik boshlanadi. Tayyor bo'lganingizga ishonch hosil qiling.
-                                </Typography>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    // ══════════════════════════════════════
     // LOADING
     // ══════════════════════════════════════
     if (loading) return <Loading />;
@@ -292,14 +166,14 @@ export default function Test() {
     // ══════════════════════════════════════
     // SAVOLLAR BO'SH
     // ══════════════════════════════════════
-    if (testStarted && !loading && questions.length === 0) {
+    if (!loading && questions.length === 0) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
                 <div className="w-full max-w-md">
                     <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 text-center">
                         <div className="flex justify-center mb-5">
                             <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center">
-                                <FileX className="w-8 h-8 text-orange-500" />
+                                <AlertCircle className="w-8 h-8 text-orange-500" />
                             </div>
                         </div>
 
@@ -307,7 +181,7 @@ export default function Test() {
                             Savollar topilmadi
                         </Typography>
                         <Typography className="text-gray-500 text-sm mb-6">
-                            Hozircha bu test uchun savollar mavjud emas. Iltimos, keyinroq qayta urinib ko'ring.
+                            Hozircha bu test uchun savollar mavjud emas.
                         </Typography>
 
                         <Button
@@ -334,20 +208,19 @@ export default function Test() {
         return (
             <div className="min-h-screen bg-gray-50 p-3 sm:p-4">
                 <div className="max-w-3xl mx-auto">
+                    {/* Header */}
                     <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4">
                         <Typography variant="h4" className="font-bold text-gray-800 text-center mb-2">
                             Test yakunlandi
                         </Typography>
-                        <Typography className="text-gray-600 text-center text-sm sm:text-base">
-                            {quizInfo?.name}
-                        </Typography>
-                        {fullName && (
-                            <Typography className="text-gray-500 text-center text-xs mt-1">
-                                {fullName}
+                        {quizInfo?.name && (
+                            <Typography className="text-gray-600 text-center text-sm sm:text-base">
+                                {quizInfo.name}
                             </Typography>
                         )}
                     </div>
 
+                    {/* Asosiy statistika */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
                         <div className="bg-white rounded-lg shadow p-4 text-center">
                             <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-1">
@@ -375,6 +248,7 @@ export default function Test() {
                         </div>
                     </div>
 
+                    {/* Batafsil natijalar */}
                     <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4">
                         <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
                             Batafsil natijalar
@@ -410,11 +284,10 @@ export default function Test() {
                                                     {index + 1}. {question.question}
                                                 </Typography>
 
-                                                {/* Изображение вопроса */}
                                                 {question.image && (
                                                     <div className="mt-2">
                                                         <img
-                                                            src={`${IMAGE_BASE_URL}${question.image}`}
+                                                            src={`${CONFIG?.API_URL}${question.image}`}
                                                             alt={`Question ${index + 1}`}
                                                             className="max-w-full h-auto rounded-lg border border-gray-200 max-h-48 object-contain"
                                                             onError={(e) => {
@@ -462,6 +335,27 @@ export default function Test() {
                             })}
                         </div>
                     </div>
+
+                    {/* Tugmalar */}
+                    <div className="flex gap-3">
+                        <Button
+                            fullWidth
+                            color="blue"
+                            variant="outlined"
+                            onClick={() => navigate('/')}
+                            className="normal-case"
+                        >
+                            Bosh sahifa
+                        </Button>
+                        <Button
+                            fullWidth
+                            color="blue"
+                            onClick={() => navigate(-1)}
+                            className="normal-case"
+                        >
+                            Tugatish
+                        </Button>
+                    </div>
                 </div>
             </div>
         );
@@ -472,62 +366,59 @@ export default function Test() {
     // ══════════════════════════════════════
     const currentQ = questions[currentQuestion];
     const progress = ((currentQuestion + 1) / questions.length) * 100;
-    const timePercentage = (timeLeft / (quizInfo?.time * 60)) * 100;
     const isQuestionAnswered = answeredQuestions.has(currentQ?.id);
     const selectedOptionId = selectedAnswers[currentQ?.id];
 
     return (
         <div className="min-h-screen bg-gray-50 p-3 sm:p-4 pb-20">
             <div className="max-w-3xl mx-auto">
+                {/* Header */}
                 <div className="bg-white rounded-lg shadow p-3 sm:p-4 mb-4 sticky top-0 z-10">
                     <div className="flex justify-between items-center mb-3">
                         <div className="truncate pr-2">
-                            <Typography variant="h6" className="font-semibold text-gray-800 text-sm sm:text-base truncate">
-                                {quizInfo?.name}
-                            </Typography>
-                            <Typography className="text-xs text-gray-500 truncate">
-                                {fullName}
-                            </Typography>
+                            {quizInfo?.name && (
+                                <Typography variant="h6" className="font-semibold text-gray-800 text-sm sm:text-base truncate">
+                                    {quizInfo.name}
+                                </Typography>
+                            )}
                         </div>
-                        <div
-                            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-lg flex-shrink-0 ${timeLeft < 60 ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
-                                }`}
-                        >
-                            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="font-mono font-bold text-base sm:text-lg">{formatTime(timeLeft)}</span>
+                        <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-lg bg-blue-100 text-blue-700">
+                            <span className="font-medium text-sm sm:text-base">
+                                Savol {currentQuestion + 1} / {questions.length}
+                            </span>
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex justify-between text-xs sm:text-sm text-gray-600">
-                            <span>
-                                Savol {currentQuestion + 1} / {questions.length}
-                            </span>
-                            <span>{Object.keys(selectedAnswers).length} javob</span>
+                            <span>Progress</span>
+                            <span>{Object.keys(selectedAnswers).length} / {questions.length} javob</span>
                         </div>
                         <Progress value={progress} color="blue" className="h-2" />
-                        <Progress value={timePercentage} color={timeLeft < 60 ? "red" : "green"} className="h-1" />
                     </div>
                 </div>
 
+                {/* Savol */}
                 <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4">
-                    <Typography variant="h6" className="mb-3 text-gray-800 font-medium text-base sm:text-lg">
-                        {currentQ?.question}
-                    </Typography>
+                    {currentQ?.question && (
+                        <Typography variant="h6" className="mb-3 text-gray-800 font-medium text-base sm:text-lg">
+                            {currentQ.question}
+                        </Typography>
+                    )}
 
-                    {/* Изображение вопроса во время теста */}
                     {currentQ?.image && (
                         <div className="mb-4">
                             <img
-                                src={`${IMAGE_BASE_URL}${currentQ.image}`}
+                                src={`${CONFIG?.API_URL}${currentQ.image}`}
                                 alt="Question"
                                 className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm max-h-64 object-contain mx-auto"
                                 onError={(e) => {
                                     e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
+                                    if (e.target.nextSibling) {
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }
                                 }}
                             />
-                            {/* Fallback если изображение не загрузилось */}
                             <div className="hidden items-center justify-center gap-2 p-4 bg-gray-100 rounded-lg text-gray-500 text-sm">
                                 <ImageIcon className="w-5 h-5" />
                                 <span>Rasmni yuklab bo'lmadi</span>
@@ -535,6 +426,7 @@ export default function Test() {
                         </div>
                     )}
 
+                    {/* Variantlar */}
                     <div className="space-y-2 sm:space-y-3">
                         {currentQ?.options.map((option, index) => {
                             const isSelected = selectedOptionId === option.id;
@@ -545,13 +437,13 @@ export default function Test() {
                                 <div
                                     key={option.id}
                                     onClick={() => handleAnswerSelect(currentQ.id, option.id)}
-                                    className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${!showResult
-                                        ? "cursor-pointer border-gray-200 hover:border-gray-300 active:border-gray-400 bg-white"
+                                    className={`p-3 sm:p-4 rounded-lg border-2 transition-all cursor-pointer ${!showResult
+                                        ? "border-gray-200 hover:border-gray-300 active:border-gray-400 bg-white"
                                         : isCorrect
                                             ? "border-green-500 bg-green-50"
                                             : isSelected
                                                 ? "border-red-500 bg-red-50"
-                                                : "border-gray-200 bg-gray-50"
+                                                : "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
                                         } ${!showResult && isSelected ? "border-blue-500 bg-blue-50" : ""}`}
                                 >
                                     <div className="flex items-start gap-2 sm:gap-3">
@@ -601,6 +493,7 @@ export default function Test() {
                     </div>
                 </div>
 
+                {/* Pastki tugmalar */}
                 <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 sm:p-4">
                     <div className="max-w-3xl mx-auto flex gap-2 sm:gap-3">
                         <Button

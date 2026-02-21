@@ -1,16 +1,22 @@
-import ErrorPage from "../Components/ErrorPage/ErrorPage";
 import Home from "../Components/Home";
+import Module from "../Components/Module";
 import Test from "../Components/Test";
+import Theme from "../Components/Theme";
 
 export const Rout = [
     {
         name: 'Home',
         path: '/',
-        component: <ErrorPage />
+        component: <Home />
     },
     {
-        name: 'Test',
-        path: '/test/:id',
+        name: 'Them',
+        path: '/module/:id',
+        component: <Module />
+    },
+    {
+        name: 'Question',
+        path: '/theme/:id',
         component: <Test />
     },
 ]

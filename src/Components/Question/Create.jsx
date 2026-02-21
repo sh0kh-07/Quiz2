@@ -104,7 +104,7 @@ export default function CreateQuestion({ refresh }) {
 
             // Создаем FormData для отправки файла
             const formData = new FormData();
-            formData.append("quizId", id);
+            formData.append("topicId", id);
             formData.append("question", question);
 
             // Добавляем изображение, если оно есть
@@ -318,7 +318,7 @@ export default function CreateQuestion({ refresh }) {
                     >
                         {loading ? "Saqlanmoqda..." : "Savol yaratish"}
                     </Button>
-                    <NavLink to={`/quiz`}>
+                    <NavLink to={`/topic-modules`}>
                         <Button
                             color="red"
                             className=" w-full sm:flex-1 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"

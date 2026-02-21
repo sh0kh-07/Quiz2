@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_URL = "https://dev.menejment2.uz"
+export const BASE_URL = "https://dev2.menejment2.uz"
 
 export const $api = axios.create({
     baseURL: `${BASE_URL}/api/v1`,

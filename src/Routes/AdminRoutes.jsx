@@ -1,8 +1,11 @@
-import Archive from "../Components/Archive";
 import Dashboard from "../Components/Dashboard";
+import Payment from "../Components/Payment";
 import Create from "../Components/Question/Create";
-import Quiz from "../Components/Quiz";
 import QuizDetail from "../Components/QuizDetail";
+import Reklama from "../Components/Reklama";
+import Topic from "../Components/Topic";
+import TopicDetail from "../Components/TopicDetail";
+import TopicModule from "../Components/TopicModule";
 
 export const AdminRoutes = [
     {
@@ -11,14 +14,19 @@ export const AdminRoutes = [
         component: <Dashboard />
     },
     {
-        name: 'Quiz',
-        path: '/quiz',
-        component: <Quiz />
+        name: 'Topic module',
+        path: '/topic-modules',
+        component: <TopicModule />
     },
     {
-        name: 'Quiz detail',
-        path: '/quiz/:id',
-        component: <QuizDetail />
+        name: 'Topic module detail',
+        path: '/topic-modules/:id',
+        component: <Topic />
+    },
+    {
+        name: 'Topic detail',
+        path: '/topic/:id',
+        component: <TopicDetail />
     },
     {
         name: 'Question yaratish',
@@ -26,8 +34,13 @@ export const AdminRoutes = [
         component: <Create />
     },
     {
-        name: 'Archive',
-        path: '/archive',
-        component: <Archive />
+        name: 'Payment',
+        path: '/payment',
+        component: <Payment />
+    },
+    {
+        name: 'Reklama',
+        path: 'reklama',
+        component: <Reklama />
     },
 ]

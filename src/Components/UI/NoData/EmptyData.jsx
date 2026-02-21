@@ -12,7 +12,6 @@ export default function EmptyData({ text }) {
             </Typography>
             <Typography className="text-gray-500 text-center max-w-md">
                 Bu yerda hozircha hech qanday ma’lumot yo‘q.
-                Yangi yozuv qo‘shib ko‘ring yoki keyinroq qaytib keling.
             </Typography>
         </div>
     );

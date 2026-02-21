@@ -11,11 +11,15 @@ class QuestionApi {
         return response;
     }
     static Get = async (id, page) => {
-        const response = await $api.get(`/questions/page?quizId=${id}&page=${page}`)
+        const response = await $api.get(`/questions/page?topicId=${id}&page=${page}`)
         return response;
     }
-    static GetAll = async (id) => {
-        const response = await api.get(`/questions/all?quizId=${id}`)
+    static GetForUser = async (id, telegramUserId) => {
+        const response = await $api.get(`/questions/all?topicId=${id}`, {
+            headers: {
+                'chat-id': telegramUserId
+            }
+        })
         return response;
     }
     static Edit = async (id, data) => {
@@ -27,6 +31,10 @@ class QuestionApi {
         return response;
     }
     static Delete = async (id) => {
+        const response = await $api.delete(`/questions/${id}`)
+        return response;
+    }
+    static PostResult = async (id) => {
         const response = await $api.delete(`/questions/${id}`)
         return response;
     }

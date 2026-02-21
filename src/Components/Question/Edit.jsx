@@ -12,13 +12,10 @@ import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { QuestionApi } from "../../utils/Controllers/QuestionApi";
 import { useParams } from "react-router-dom";
 import { Alert } from "../../utils/Alert";
+import CONFIG from "../../utils/Config";
 
 export default function Edit({ data, refresh }) {
     const { id: quizId } = useParams();
-
-    // URL для изображений (замените на ваш)
-    const IMAGE_BASE_URL = "https://dev.menejment2.uz/";
-
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [question, setQuestion] = useState("");
@@ -35,7 +32,7 @@ export default function Edit({ data, refresh }) {
         }
         if (data?.image) {
             setExistingImage(data.image);
-            setImagePreview(`${IMAGE_BASE_URL}${data.image}`);
+            setImagePreview(`${CONFIG?.API_URL}${data.image}`);
         } else {
             setExistingImage(null);
             setImagePreview(null);
@@ -89,7 +86,7 @@ export default function Edit({ data, refresh }) {
 
             // Создаем FormData для отправки файла
             const formData = new FormData();
-            formData.append("quizId", quizId);
+            formData.append("topicId", quizId);
             formData.append("question", question);
 
             // Если выбрано новое изображение

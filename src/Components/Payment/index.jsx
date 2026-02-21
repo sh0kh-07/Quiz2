@@ -347,12 +347,10 @@ export default function Payment() {
                                                 <span className={`px-2 py-0.5 rounded-full text-[10px] ${subscription.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                                                     {subscription.status === 'active' ? 'Aktiv' : subscription.status}
                                                 </span>
-                                               
                                             </div>
                                         </div>
                                     </div>
                                 )}
-
                                 {/* Информация о пользователе */}
                                 {user && (
                                     <div className="mb-3 p-2 bg-purple-50 rounded-lg">
@@ -421,50 +419,52 @@ export default function Payment() {
                             </Card>
                         )
                     })
-                ) : (
-                    // Пустое состояние
-                    <Card className="p-8">
-                        <div className="text-center">
-                            <Wallet className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                            <Typography variant="h6" color="gray" className="font-normal">
-                                To'lovlar topilmadi
-                            </Typography>
-                            <Typography variant="small" color="gray" className="mt-1">
-                                {statusTabs.find(t => t.value === activeStatusTab)?.label} to'lovlar mavjud emas
-                            </Typography>
-                        </div>
-                    </Card>
-                )}
-
-                {/* Пагинация */}
-                {!loading && payments.length > 0 && pagination.totalPages > 1 && (
-                    <div className="mt-6 flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
-                        <Button
-                            variant="outlined"
-                            size="sm"
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
-                            disabled={pagination.currentPage <= 1}
-                            className="border-gray-300 flex items-center gap-1 py-1 px-2"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            <span className="text-xs">Oldingi</span>
-                        </Button>
-                        <Typography variant="small" color="gray" className="text-xs">
-                            {pagination.currentPage} / {pagination.totalPages}
-                        </Typography>
-                        <Button
-                            variant="outlined"
-                            size="sm"
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                            disabled={pagination.currentPage >= pagination.totalPages}
-                            className="border-gray-300 flex items-center gap-1 py-1 px-2"
-                        >
-                            <span className="text-xs">Keyingi</span>
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
-                )}
+                ) : null}
             </div>
+
+            {/* Пустое состояние - вне grid */}
+            {!loading && payments.length === 0 && (
+                <Card className="p-8">
+                    <div className="text-center">
+                        <Wallet className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                        <Typography variant="h6" color="gray" className="font-normal">
+                            To'lovlar topilmadi
+                        </Typography>
+                        <Typography variant="small" color="gray" className="mt-1">
+                            {statusTabs.find(t => t.value === activeStatusTab)?.label} to'lovlar mavjud emas
+                        </Typography>
+                    </div>
+                </Card>
+            )}
+
+            {/* Пагинация */}
+            {!loading && payments.length > 0 && pagination.totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <Button
+                        variant="outlined"
+                        size="sm"
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage <= 1}
+                        className="border-gray-300 flex items-center gap-1 py-1 px-2"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span className="text-xs">Oldingi</span>
+                    </Button>
+                    <Typography variant="small" color="gray" className="text-xs">
+                        {pagination.currentPage} / {pagination.totalPages}
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        size="sm"
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage >= pagination.totalPages}
+                        className="border-gray-300 flex items-center gap-1 py-1 px-2"
+                    >
+                        <span className="text-xs">Keyingi</span>
+                        <ChevronRight className="w-4 h-4" />
+                    </Button>
+                </div>
+            )}
 
             {/* Модальное окно для просмотра изображения */}
             <Dialog

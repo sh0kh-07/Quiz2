@@ -69,7 +69,7 @@ export default function Login() {
 
             Alert("Muvaffaqiyatli!", "success");
 
-            navigate("/dashboard");
+            navigate("/topic-modules");
 
         } catch (error) {
             console.log(error);

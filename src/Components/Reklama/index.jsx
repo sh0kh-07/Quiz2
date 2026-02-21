@@ -78,9 +78,10 @@ export default function Reklama() {
             </div>
 
             {/* Cards */}
-<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {loading ? (
-                    [...Array(5)].map((_, i) => (
+            {/* LOADING */}
+            {loading ? (
+                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {[...Array(5)].map((_, i) => (
                         <Card key={i} className="p-4 animate-pulse">
                             <div className="space-y-3">
                                 <div className="h-4 bg-gray-200 rounded w-1/2"></div>
@@ -90,9 +91,12 @@ export default function Reklama() {
                                 <div className="h-3 bg-gray-200 rounded w-1/4"></div>
                             </div>
                         </Card>
-                    ))
-                ) : data.length > 0 ? (
-                    data.map((item) => (
+                    ))}
+                </div>
+            ) : data.length > 0 ? (
+                /* DATA */
+                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {data.map((item) => (
                         <Card
                             key={item.id}
                             className="p-4 shadow-sm hover:shadow-md transition"
@@ -123,27 +127,32 @@ export default function Reklama() {
                                     />
                                 </div>
                             )}
+
                             {/* Date */}
                             <div className="flex items-center gap-2 text-gray-500 text-xs">
                                 <Calendar className="w-4 h-4" />
                                 <span>{formatDate(item.createdAt)}</span>
                             </div>
+
                             <div className="flex items-center gap-[5px] mt-[15px]">
                                 <Delete id={item?.id} refresh={() => GetAllReklam(pagination.currentPage)} />
                                 <Edit data={item} refresh={() => GetAllReklam(pagination.currentPage)} />
                                 <SendReklam data={item?.id} />
                             </div>
                         </Card>
-                    ))
-                ) : (
-                    <Card className="p-6 text-center">
+                    ))}
+                </div>
+            ) : (
+                /* EMPTY STATE — ВНЕ GRID */
+                <div className="flex justify-center mt-10">
+                    <Card className="p-6 text-center w-full max-w-md">
                         <ImageIcon className="w-10 h-10 mx-auto text-gray-400 mb-2" />
                         <Typography color="gray">
                             Reklama topilmadi
                         </Typography>
                     </Card>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Pagination */}
             {!loading && pagination.totalPages > 1 && (

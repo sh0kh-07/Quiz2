@@ -64,14 +64,14 @@ export default function Create({ refresh }) {
 
                     {/* Name */}
                     <Input
-                        label="Topic nomi *"
+                        label="Mavzu nomi *"
                         value={data.name}
                         onChange={(e) => setData({ ...data, name: e.target.value })}
                     />
 
                     {/* PDF */}
                     <div>
-                        <p className="mb-2 text-sm font-medium">PDF fayl *</p>
+                        <p className="mb-2 text-sm font-medium">Maruza PDF fayl</p>
                         <input
                             type="file"
                             accept="application/pdf"
@@ -81,7 +81,7 @@ export default function Create({ refresh }) {
 
                     {/* Excel */}
                     <div>
-                        <p className="mb-2 text-sm font-medium">Excel fayl (optional)</p>
+                        <p className="mb-2 text-sm font-medium">Exel shablon</p>
                         <input
                             type="file"
                             accept=".xls,.xlsx"

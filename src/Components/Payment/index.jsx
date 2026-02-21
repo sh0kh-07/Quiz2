@@ -27,6 +27,11 @@ import {
     X,
     ZoomIn,
     ZoomOut,
+    User,
+    Phone,
+    MapPin,
+    Briefcase,
+    Hash,
 } from "lucide-react"
 import { format } from "date-fns"
 import { apiPayment } from "../../utils/Controllers/Payment"
@@ -60,7 +65,7 @@ export default function Payment() {
     // Конфигурация методов оплаты
     const methodTabs = [
         { value: "card", label: "Karta", icon: CreditCard },
-        { value: "click", label: "Pul o'tkazmasi", icon: Wallet },
+        { value: "click", label: "Click", icon: Wallet },
     ]
 
     const getAllPayment = async (page = 1) => {
@@ -174,7 +179,7 @@ export default function Payment() {
         const imageUrl = `${CONFIG?.API_URL}/${receiptImage}`
         setSelectedImage(imageUrl)
         setImageModalOpen(true)
-        setZoomLevel(1) // Сброс зума при открытии нового изображения
+        setZoomLevel(1)
     }
 
     const closeImageModal = () => {
@@ -189,6 +194,34 @@ export default function Payment() {
 
     const handleZoomOut = () => {
         setZoomLevel(prev => Math.max(prev - 0.25, 0.5))
+    }
+
+    const getSubscriptionPlanLabel = (plan) => {
+        switch (plan) {
+            case 'basic 200':
+                return "Basic 200"
+            case 'basic 500':
+                return "Basic 500"
+            case 'premium':
+                return "Premium"
+            default:
+                return plan
+        }
+    }
+
+    const getSubscriptionEndDate = (endDate) => {
+        const date = new Date(endDate)
+        const today = new Date()
+        const diffTime = date - today
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays > 0) {
+            return `${diffDays} kun qoldi`
+        } else if (diffDays === 0) {
+            return "Bugun tugaydi"
+        } else {
+            return `${Math.abs(diffDays)} kun oldin tugagan`
+        }
     }
 
     return (
@@ -270,6 +303,8 @@ export default function Payment() {
                         const StatusIcon = status.icon
                         const date = formatDate(payment.createdAt)
                         const MethodIcon = getMethodIcon(payment.method)
+                        const subscription = payment.subscription
+                        const user = subscription?.user
 
                         return (
                             <Card
@@ -288,6 +323,66 @@ export default function Payment() {
                                         </span>
                                     </div>
                                 </div>
+
+                                {/* Информация о подписке */}
+                                {subscription && (
+                                    <div className="mb-3 p-2 bg-blue-50 rounded-lg">
+                                        <Typography variant="small" className="font-semibold text-gray-700 mb-1 text-xs">
+                                            Obuna ma'lumotlari
+                                        </Typography>
+                                        <div className="space-y-1 text-xs">
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-600">Plan:</span>
+                                                <span className="font-medium">{getSubscriptionPlanLabel(subscription.plan)}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-600">Boshlanish:</span>
+                                                <span className="font-medium">{formatDate(subscription.startDate).date}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-600">Tugash:</span>
+                                                <span className="font-medium">{formatDate(subscription.endDate).date}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] ${subscription.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                                                    {subscription.status === 'active' ? 'Aktiv' : subscription.status}
+                                                </span>
+                                               
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Информация о пользователе */}
+                                {user && (
+                                    <div className="mb-3 p-2 bg-purple-50 rounded-lg">
+                                        <Typography variant="small" className="font-semibold text-gray-700 mb-1 text-xs">
+                                            Foydalanuvchi
+                                        </Typography>
+                                        <div className="space-y-1 text-xs">
+                                            <div className="flex items-center gap-1">
+                                                <User className="w-3 h-3 text-gray-600" />
+                                                <span className="font-medium">{user.full_name}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Phone className="w-3 h-3 text-gray-600" />
+                                                <span>{user.phone}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <MapPin className="w-3 h-3 text-gray-600" />
+                                                <span>{user.address}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Briefcase className="w-3 h-3 text-gray-600" />
+                                                <span>{user.category} - {user.position}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Hash className="w-3 h-3 text-gray-600" />
+                                                <span>ID: {user.chatId}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Детали платежа */}
                                 <div className="space-y-2 mb-3">
@@ -372,7 +467,6 @@ export default function Payment() {
             </div>
 
             {/* Модальное окно для просмотра изображения */}
-            {/* Модальное окно для просмотра изображения */}
             <Dialog
                 open={imageModalOpen}
                 handler={closeImageModal}
@@ -380,12 +474,9 @@ export default function Payment() {
                 className="bg-transparent shadow-none"
             >
                 <DialogBody className="relative flex items-center justify-center p-0 min-h-[500px]">
-                    {/* Затемненный фон */}
-
-
                     {/* Контейнер с изображением */}
                     <div className="relative z-10 max-w-[90vw] max-h-[90vh] bg-transparent">
-                        {/* Кнопка закрытия - вынесена отдельно от изображения */}
+                        {/* Кнопка закрытия */}
                         <button
                             onClick={(e) => {
                                 e.preventDefault();

@@ -1,7 +1,8 @@
 import Home from "../Components/Home";
 import Module from "../Components/Module";
 import Test from "../Components/Test";
-import Theme from "../Components/Theme";
+import Part from "../Components/Part";
+import UserPart from "../Components/UserPart";
 
 export const Rout = [
     {
@@ -15,8 +16,14 @@ export const Rout = [
         component: <Module />
     },
     {
+        name: 'Part',
+        path: '/parts/:id',
+        component: <UserPart />
+    },
+    {
         name: 'Question',
         path: '/theme/:id',
         component: <Test />
     },
+
 ]

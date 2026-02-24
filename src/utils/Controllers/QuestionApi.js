@@ -11,11 +11,11 @@ class QuestionApi {
         return response;
     }
     static Get = async (id, page) => {
-        const response = await $api.get(`/questions/page?topicId=${id}&page=${page}`)
+        const response = await $api.get(`/questions/page?partId=${id}&page=${page}`)
         return response;
     }
     static GetForUser = async (id, telegramUserId) => {
-        const response = await $api.get(`/questions/all?topicId=${id}`, {
+        const response = await $api.get(`/questions/all?partId=${id}`, {
             headers: {
                 'chat-id': telegramUserId
             }

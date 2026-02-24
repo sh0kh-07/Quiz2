@@ -20,6 +20,7 @@ import EmptyData from "../UI/NoData/EmptyData"
 import Delete from "./__components/Delete"
 import Edit from "./__components/Edit"
 import ExelDownload from "./__components/ExelDownload"
+import { apiParts } from "../../utils/Controllers/Parts"
 
 export default function Topic() {
     const { id } = useParams()
@@ -32,8 +33,8 @@ export default function Topic() {
     const GetAllTopic = async (currentPage = 1) => {
         setLoading(true)
         try {
-            const response = await apiTopic.Get({
-                id: id,
+            const response = await apiParts.GetParts({
+                topicId: id,
                 page: currentPage,
             })
 
@@ -61,7 +62,7 @@ export default function Topic() {
         <div className="">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-[25px] font-bold">Mavzu</h1>
+                <h1 className="text-[25px] font-bold">Qisimlar</h1>
                 <div className="flex items-center gap-[5px]">
                     <Create refresh={() => GetAllTopic(page)} />
                 </div>
@@ -87,14 +88,14 @@ export default function Topic() {
                                     {new Date(item.createdAt).toLocaleDateString()}
                                 </div>
                                 <div className="flex items-center gap-[5px]">
-                                    <NavLink className={'w-full'} to={`/part/${item?.id}`}>
+                                    <NavLink className={'w-full'} to={`/topic/${item?.id}`}>
                                         <Button className="p-[10px] w-full flex items-center justify-center" color="blue">
                                             <Eye className="w-4 h-4" />
                                         </Button>
                                     </NavLink>
                                     <Edit data={item} refresh={() => GetAllTopic(page)} />
                                     <Delete id={item?.id} refresh={() => GetAllTopic(page)} />
-                                    <ExelDownload id={item?.id}/>
+                                    <ExelDownload id={item?.id} />
                                 </div>
                             </CardBody>
                         </Card>

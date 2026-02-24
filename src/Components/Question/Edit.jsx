@@ -86,7 +86,7 @@ export default function Edit({ data, refresh }) {
 
             // Создаем FormData для отправки файла
             const formData = new FormData();
-            formData.append("topicId", quizId);
+            formData.append("partId", quizId);
             formData.append("question", question);
 
             // Если выбрано новое изображение

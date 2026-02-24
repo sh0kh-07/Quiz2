@@ -64,7 +64,6 @@ export default function Test() {
     useEffect(() => {
         GetAllQuiz();
     }, [id]);
-
     const handleAnswerSelect = (questionId, optionId) => {
         if (answeredQuestions.has(questionId)) return;
 
@@ -75,31 +74,27 @@ export default function Test() {
 
         setAnsweredQuestions((prev) => new Set([...prev, questionId]));
     };
-
     const handleNext = () => {
         if (currentQuestion < questions.length - 1) {
             setCurrentQuestion((prev) => prev + 1);
         }
     };
-
     const handlePrev = () => {
         if (currentQuestion > 0) {
             setCurrentQuestion((prev) => prev - 1);
         }
     };
-
     const PostAnswer = async () => {
         try {
             const answers = Object.entries(selectedAnswers).map(([questionId, optionId]) => ({
-                userTopicId: userQuizId,
+                userPartId: userQuizId,
                 questionId: questionId,
                 optionId: optionId,
                 note: "",
             }));
-
             const data = {
                 chatId: userId,
-                topicId: id,
+                partId: id,
                 endTime: 1,
                 pdfView: true,
                 answers: answers,

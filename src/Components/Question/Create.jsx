@@ -104,7 +104,7 @@ export default function CreateQuestion({ refresh }) {
 
             // Создаем FormData для отправки файла
             const formData = new FormData();
-            formData.append("topicId", id);
+            formData.append("partId", id);
             formData.append("question", question);
 
             // Добавляем изображение, если оно есть

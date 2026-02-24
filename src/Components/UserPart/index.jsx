@@ -11,8 +11,9 @@ import {
 } from "lucide-react"
 import Swal from "sweetalert2"
 import CONFIG from "../../utils/Config"
+import { apiParts } from "../../utils/Controllers/Parts"
 
-export default function Module() {
+export default function UserPart() {
     const navigate = useNavigate()
     const { id } = useParams()
     const [topics, setTopics] = useState([])
@@ -27,7 +28,7 @@ export default function Module() {
     const GetAllTheme = async (page = 1) => {
         try {
             setLoading(true)
-            const response = await apiTopic?.GetForUser({
+            const response = await apiParts?.GetPartsForUser({
                 id,
                 page,
                 telegramUserId
@@ -81,7 +82,7 @@ export default function Module() {
             return
         }
         // Mavzu sahifasiga o'tish
-        navigate(`/parts/${topic.id}`)
+        navigate(`/theme/${topic.id}`)
     }
 
     const handleDownloadPdf = (topic, e) => {
@@ -135,7 +136,7 @@ export default function Module() {
                             <ChevronLeft size={20} />
                         </IconButton>
                         <Typography variant="h4" className="font-bold text-gray-800">
-                            📚 Mavzular
+                            📚 Qisimlar
                         </Typography>
                     </div>
 
@@ -144,7 +145,7 @@ export default function Module() {
                         <div className="flex gap-4 text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                                 <BookOpen size={16} />
-                                <span>{pagination.totalCount} ta mavzu</span>
+                                <span>{pagination.totalCount} ta qism</span>
                             </div>
                         </div>
                     </div>
@@ -185,7 +186,7 @@ export default function Module() {
                                                 <div className="flex justify-between items-start mb-3">
                                                     <div className="flex items-center gap-2">
                                                         {/* Indeks (agar mavjud bo'lsa) */}
-                                                          <div className={`w-8 h-8 ${status.bgColor} rounded-full flex items-center justify-center`}>
+                                                        <div className={`w-8 h-8 ${status.bgColor} rounded-full flex items-center justify-center`}>
                                                             <span className={`font-bold ${status.color}`}>
                                                                 {index + 1}
                                                             </span>

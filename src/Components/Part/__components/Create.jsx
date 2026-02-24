@@ -7,9 +7,9 @@ import {
     DialogFooter,
     Input,
 } from "@material-tailwind/react"
-import { apiTopic } from "../../../utils/Controllers/Topic"
 import { Alert } from "../../../utils/Alert"
 import { useParams } from "react-router-dom"
+import { apiParts } from "../../../utils/Controllers/Parts"
 
 const formatBytes = (bytes, decimals = 2) => {
     if (!+bytes) return '0 Bayt'
@@ -44,11 +44,11 @@ export default function Create({ refresh }) {
         try {
             setLoading(true)
             const formData = new FormData()
-            formData.append("moduleId", data.moduleId)
+            formData.append("topicId", data.moduleId)
             formData.append("name", data.name)
-            formData.append("pdf", data.pdf)
+            formData.append("excel", data.pdf)
 
-            await apiTopic.Create(formData) // backendga yuborish
+            await apiParts.CreateParts(formData)
 
             Alert("Muvaffaqiyatli yaratildi", "success")
             setData({ moduleId: "", name: "", pdf: null })
@@ -68,24 +68,22 @@ export default function Create({ refresh }) {
             </Button>
 
             <Dialog open={open} handler={handleOpen}>
-                <DialogHeader>Yangi mavzu yaratish</DialogHeader>
+                <DialogHeader>Yangi qisim yaratish</DialogHeader>
 
                 <DialogBody className="flex flex-col gap-4">
 
-                    {/* Name */}
                     <Input
-                        label="Mavzu nomi *"
+                        label="Qisim nomi *"
                         value={data.name}
                         onChange={(e) => setData({ ...data, name: e.target.value })}
                     />
 
-                    {/* PDF */}
                     <div className="flex flex-col gap-1">
-                        <p className="text-sm font-medium">Maruza PDF fayl</p>
+                        <p className="text-sm font-medium">Exel shablon fayl</p>
                         <div className="flex items-center gap-4">
                             <input
                                 type="file"
-                                accept="application/pdf"
+                                accept=".xlsx"
                                 className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 onChange={(e) => setData({ ...data, pdf: e.target.files[0] })}
                             />

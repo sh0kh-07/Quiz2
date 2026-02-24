@@ -1,7 +1,7 @@
 import Dashboard from "../Components/Dashboard";
+import Part from "../Components/Part";
 import Payment from "../Components/Payment";
 import Create from "../Components/Question/Create";
-import QuizDetail from "../Components/QuizDetail";
 import Reklama from "../Components/Reklama";
 import Topic from "../Components/Topic";
 import TopicDetail from "../Components/TopicDetail";
@@ -42,5 +42,10 @@ export const AdminRoutes = [
         name: 'Reklama',
         path: 'reklama',
         component: <Reklama />
+    },
+    {
+        name: 'Part',
+        path: '/part/:id',
+        component: <Part />
     },
 ]

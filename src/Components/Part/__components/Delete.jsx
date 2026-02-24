@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { Button, Dialog, DialogHeader, DialogBody, DialogFooter, Typography } from "@material-tailwind/react"
 import { Trash2 } from "lucide-react"
+import { apiTopicModule } from "../../../utils/Controllers/TopicModule"
 import { Alert } from "../../../utils/Alert"
 import { apiTopic } from "../../../utils/Controllers/Topic"
+import { apiParts } from "../../../utils/Controllers/Parts"
 
 export default function Delete({ id, refresh }) {
     const [open, setOpen] = useState(false)
@@ -13,7 +15,7 @@ export default function Delete({ id, refresh }) {
     const DeleteTopic = async () => {
         try {
             setLoading(true)
-            await apiTopic.Delete(id)
+            await apiParts.DeleteParts(id)
             refresh() // listni refresh qiladi
             Alert("Muvaffaqiyatli", "success")
             setOpen(false)
@@ -35,20 +37,18 @@ export default function Delete({ id, refresh }) {
             <Dialog open={open} handler={handleOpen} size="xl">
                 <DialogHeader>
                     <Typography variant="h5" className="text-red-600">
-                        Mavzuni o‘chirish
+                        Qisimni o‘chirish
                     </Typography>
                 </DialogHeader>
-
                 <DialogBody>
                     <Typography className="text-gray-700">
-                        Siz rostdan ham ushbu mavzuni o‘chirmoqchimisiz?
+                        Siz rostdan ham ushbu qisimni o‘chirmoqchimisiz?
                         <br />
                         <span className="text-red-500 font-semibold">
                             Bu amalni ortga qaytarib bo‘lmaydi.
                         </span>
                     </Typography>
                 </DialogBody>
-
                 <DialogFooter className="flex gap-2">
                     <Button
                         variant="text"
